@@ -4,6 +4,7 @@ import axios from "axios";
 import { reactive } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
+import { login } from "@/apis/authHttp";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -13,23 +14,49 @@ let form = reactive({
   password: "",
 });
 
-const onSubmit = () => {
-  axios
-    .post("http://localhost:8000/auth/login/", form)
-    .then((res) => {
-      let data = res.data;
-      console.log(data);
-      let user = data.user;
-      let token = data.token;
-      console.log(user, token);
+const onSubmit = async () => {
+  // 版本1 直接使用axios
+  // axios
+  //   .post("http://localhost:8000/auth/login/", form)
+  //   .then((res) => {
+  //     let data = res.data;
+  //     let user = data.user;
+  //     let token = data.token;
+  //     authStore.setUserToken(user, token);
+  //     router.push("/");
+  //   })
+  //   .catch((err) => {
+  //     let detail = err;
+  //     alert(detail);
+  //   });
+  // 版本2 使用封装的axios
+  // login(form.email, form.password)
+  //   .then((res) => {
+  //     let data = res.data;
+  //     let user = data.user;
+  //     let token = data.token;
+  //     authStore.setUserToken(user, token);
+  //     router.push("/");
+  //   })
+  //   .catch((err) => {
+  //     let detail = err;
+  //     alert(detail);
+  //   });
 
-      authStore.setUserToken(user, token);
-      router.push("/");
-    })
-    .catch((err) => {
-      let detail = err;
-      alert(detail);
-    });
+  // 服务器不够快, 所以用.then 来做回调, 但是不够优雅
+  // 用async await 来做
+  // 可以封装的时候 返回一个promise对象
+  // 版本3 异步调用
+  try {
+    let data = await login(form.email, form.password);
+    let user = data.user;
+    let token = data.token;
+    authStore.setUserToken(user, token);
+    router.push("/");
+  } catch (err) {
+    let detail = err;
+    alert(detail);
+  }
 };
 </script>
 
