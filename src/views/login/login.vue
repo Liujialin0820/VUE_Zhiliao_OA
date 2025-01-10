@@ -5,6 +5,7 @@ import { reactive } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import { login } from "@/apis/authHttp";
+import { ElMessage } from "element-plus";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -54,8 +55,10 @@ const onSubmit = async () => {
     authStore.setUserToken(user, token);
     router.push("/");
   } catch (err) {
-    let detail = err;
-    alert(detail);
+    console.log(err);
+    console.log(err.response.data.detail);
+    ElMessage.error(err.response.data.detail);
+    let detail = err.response.data.detail;
   }
 };
 </script>
